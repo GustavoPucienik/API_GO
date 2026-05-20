@@ -1,0 +1,31 @@
+version: "2"
+sql:
+  - engine: "mysql"
+    queries: "db/queries/"
+    schema: "db/schema/"
+    gen:
+      go:
+        package: "db"
+        out: "internal/db"
+        emit_json_tags: true
+        emit_pointers_for_null_types: true
+        overrides:
+          - column: "user.is_active"
+            go_type: "bool"
+          - column: "access_levels_modules.can_be_assigned"
+            go_type: "bool"
+          - column: "access_levels_modules.data_scope"
+            go_type: "string"
+          - column: "menu.required_scope"
+            go_type:
+              import: "database/sql"
+              type: "NullString"
+              pointer: false
+          - column: "maintenance_order_status.is_closed"
+            go_type: "bool"
+          - column: "maintenance_order_status.is_default"
+            go_type: "bool"
+          - column: "maintenance_order_checklist_template.active"
+            go_type: "bool"
+          - column: "maintenance_order_checklist_item.required"
+            go_type: "bool"
