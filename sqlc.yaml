@@ -10,6 +10,7 @@ sql:
         emit_json_tags: true
         emit_pointers_for_null_types: true
         overrides:
+          # ── Admin ──────────────────────────────────────────────────────────
           - column: "user.is_active"
             go_type: "bool"
           - column: "access_levels_modules.can_be_assigned"
@@ -21,6 +22,7 @@ sql:
               import: "database/sql"
               type: "NullString"
               pointer: false
+          # ── Maintenance ────────────────────────────────────────────────────
           - column: "maintenance_order_status.is_closed"
             go_type: "bool"
           - column: "maintenance_order_status.is_default"
@@ -28,4 +30,43 @@ sql:
           - column: "maintenance_order_checklist_template.active"
             go_type: "bool"
           - column: "maintenance_order_checklist_item.required"
+            go_type: "bool"
+          # ── Fiscal ─────────────────────────────────────────────────────────
+          - column: "fiscal_order_status.is_closed"
+            go_type: "bool"
+          - column: "fiscal_order_status.is_default"
+            go_type: "bool"
+          - column: "fiscal_order_status.is_pending_approval"
+            go_type: "bool"
+          # ── Purchasing ─────────────────────────────────────────────────────
+          - column: "purchasing_order_status.is_closed"
+            go_type: "bool"
+          - column: "purchasing_order_status.is_default"
+            go_type: "bool"
+          - column: "purchasing_order_status.is_pending_approval"
+            go_type: "bool"
+          # ── Commercial ─────────────────────────────────────────────────────
+          - column: "commercial_order_status.is_closed"
+            go_type: "bool"
+          - column: "commercial_order_status.is_pending_approval"
+            go_type: "bool"
+          # ── Logistic ───────────────────────────────────────────────────────
+          - column: "logistic_order_status.is_closed"
+            go_type: "bool"
+          - column: "logistic_order_status.is_pending_approval"
+            go_type: "bool"
+          - column: "logistic_order_status.is_rh_step"
+            go_type: "bool"
+          # ── Return ─────────────────────────────────────────────────────────
+          - column: "return_order_status.is_closed"
+            go_type: "bool"
+          - column: "return_order_status.is_default"
+            go_type: "bool"
+          - column: "return_order_status.is_pending_approval"
+            go_type: "bool"
+          - column: "return_order.client_sent_return_note"
+            go_type: "bool"
+          - column: "return_order.internal_return"
+            go_type: "bool"
+          - column: "return_order.partial_return"
             go_type: "bool"

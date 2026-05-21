@@ -496,6 +496,20 @@ func (h *Handler) findAllMenus(w http.ResponseWriter, r *http.Request) {
 	response.Ok(w, menus)
 }
 
+func (h *Handler) findMenuByID(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	m, err := h.menu.FindByID(r.Context(), id)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response.Ok(w, m)
+}
+
 func (h *Handler) updateMenu(w http.ResponseWriter, r *http.Request) {
 	id, err := parseID(r)
 	if err != nil {

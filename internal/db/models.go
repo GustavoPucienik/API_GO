@@ -55,6 +55,49 @@ func (ns NullAccessLevelsModulesDataScope) Value() (driver.Value, error) {
 	return string(ns.AccessLevelsModulesDataScope), nil
 }
 
+type LogisticOperatorType string
+
+const (
+	LogisticOperatorTypeDriver  LogisticOperatorType = "driver"
+	LogisticOperatorTypeChecker LogisticOperatorType = "checker"
+	LogisticOperatorTypeBoth    LogisticOperatorType = "both"
+)
+
+func (e *LogisticOperatorType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LogisticOperatorType(s)
+	case string:
+		*e = LogisticOperatorType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LogisticOperatorType: %T", src)
+	}
+	return nil
+}
+
+type NullLogisticOperatorType struct {
+	LogisticOperatorType LogisticOperatorType `json:"logistic_operator_type"`
+	Valid                bool                 `json:"valid"` // Valid is true if LogisticOperatorType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLogisticOperatorType) Scan(value interface{}) error {
+	if value == nil {
+		ns.LogisticOperatorType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LogisticOperatorType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLogisticOperatorType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LogisticOperatorType), nil
+}
+
 type MaintenanceOrderChecklistItemType string
 
 const (
@@ -161,6 +204,165 @@ type AccessLevelsModule struct {
 	DeletedAt           sql.NullTime `json:"deleted_at"`
 }
 
+type CommercialConfig struct {
+	CommercialConfigID int32 `json:"commercial_config_id"`
+}
+
+type CommercialConfigAssignableAccessLevel struct {
+	CommercialConfigID int32 `json:"commercial_config_id"`
+	AccessLevelID      int32 `json:"access_level_id"`
+}
+
+type CommercialOrder struct {
+	CommercialOrderID int32          `json:"commercial_order_id"`
+	RequesterID       int32          `json:"requester_id"`
+	RequesterName     string         `json:"requester_name"`
+	AssignedToID      sql.NullInt32  `json:"assigned_to_id"`
+	AssignedToName    sql.NullString `json:"assigned_to_name"`
+	SalespersonName   sql.NullString `json:"salesperson_name"`
+	ClientCode        string         `json:"client_code"`
+	ClientName        string         `json:"client_name"`
+	ClientAliasName   string         `json:"client_alias_name"`
+	StatusID          int32          `json:"status_id"`
+	PriorityID        int32          `json:"priority_id"`
+	ReasonID          int32          `json:"reason_id"`
+	Description       string         `json:"description"`
+	CapturedAt        sql.NullTime   `json:"captured_at"`
+	Resolution        sql.NullString `json:"resolution"`
+	ClosedAt          sql.NullTime   `json:"closed_at"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	DeletedAt         sql.NullTime   `json:"deleted_at"`
+}
+
+type CommercialOrderAttachment struct {
+	CommercialOrderAttachmentID int32        `json:"commercial_order_attachment_id"`
+	CommercialOrderID           int32        `json:"commercial_order_id"`
+	FileName                    string       `json:"file_name"`
+	FilePath                    string       `json:"file_path"`
+	FileSize                    int32        `json:"file_size"`
+	CreatedAt                   time.Time    `json:"created_at"`
+	UpdatedAt                   time.Time    `json:"updated_at"`
+	DeletedAt                   sql.NullTime `json:"deleted_at"`
+}
+
+type CommercialOrderItem struct {
+	CommercialOrderItemID int32        `json:"commercial_order_item_id"`
+	CommercialOrderID     int32        `json:"commercial_order_id"`
+	Name                  string       `json:"name"`
+	ItemCode              string       `json:"item_code"`
+	Quantity              int32        `json:"quantity"`
+	CreatedAt             time.Time    `json:"created_at"`
+	UpdatedAt             time.Time    `json:"updated_at"`
+	DeletedAt             sql.NullTime `json:"deleted_at"`
+}
+
+type CommercialOrderPriority struct {
+	CommercialOrderPriorityID int32  `json:"commercial_order_priority_id"`
+	Name                      string `json:"name"`
+	BackgroundColor           string `json:"background_color"`
+	BorderColor               string `json:"border_color"`
+	TextColor                 string `json:"text_color"`
+	SortIndex                 int32  `json:"sort_index"`
+}
+
+type CommercialOrderReason struct {
+	CommercialOrderReasonID int32        `json:"commercial_order_reason_id"`
+	Name                    string       `json:"name"`
+	InitialStatusID         int32        `json:"initial_status_id"`
+	CreatedAt               time.Time    `json:"created_at"`
+	UpdatedAt               time.Time    `json:"updated_at"`
+	DeletedAt               sql.NullTime `json:"deleted_at"`
+}
+
+type CommercialOrderStatus struct {
+	CommercialOrderStatusID int32  `json:"commercial_order_status_id"`
+	Name                    string `json:"name"`
+	BackgroundColor         string `json:"background_color"`
+	BorderColor             string `json:"border_color"`
+	TextColor               string `json:"text_color"`
+	SortIndex               int32  `json:"sort_index"`
+	IsClosed                bool   `json:"is_closed"`
+	IsPendingApproval       bool   `json:"is_pending_approval"`
+}
+
+type CommercialOrderStatusTransition struct {
+	ID            int32         `json:"id"`
+	FromStatusID  sql.NullInt32 `json:"from_status_id"`
+	ToStatusID    int32         `json:"to_status_id"`
+	AccessLevelID int32         `json:"access_level_id"`
+}
+
+type FiscalOrder struct {
+	FiscalOrderID   int32          `json:"fiscal_order_id"`
+	RequesterID     int32          `json:"requester_id"`
+	RequesterName   string         `json:"requester_name"`
+	AssignedToID    sql.NullInt32  `json:"assigned_to_id"`
+	AssignedToName  sql.NullString `json:"assigned_to_name"`
+	SalespersonName sql.NullString `json:"salesperson_name"`
+	ClientCode      string         `json:"client_code"`
+	ClientName      string         `json:"client_name"`
+	ClientAliasName string         `json:"client_alias_name"`
+	StatusID        int32          `json:"status_id"`
+	PriorityID      int32          `json:"priority_id"`
+	ReasonID        int32          `json:"reason_id"`
+	Description     string         `json:"description"`
+	CapturedAt      sql.NullTime   `json:"captured_at"`
+	Resolution      sql.NullString `json:"resolution"`
+	ClosedAt        sql.NullTime   `json:"closed_at"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	DeletedAt       sql.NullTime   `json:"deleted_at"`
+}
+
+type FiscalOrderAttachment struct {
+	FiscalOrderAttachmentID int32        `json:"fiscal_order_attachment_id"`
+	FiscalOrderID           int32        `json:"fiscal_order_id"`
+	FileName                string       `json:"file_name"`
+	FilePath                string       `json:"file_path"`
+	FileSize                int32        `json:"file_size"`
+	CreatedAt               time.Time    `json:"created_at"`
+	UpdatedAt               time.Time    `json:"updated_at"`
+	DeletedAt               sql.NullTime `json:"deleted_at"`
+}
+
+type FiscalOrderPriority struct {
+	FiscalOrderPriorityID int32  `json:"fiscal_order_priority_id"`
+	Name                  string `json:"name"`
+	BackgroundColor       string `json:"background_color"`
+	BorderColor           string `json:"border_color"`
+	TextColor             string `json:"text_color"`
+	SortIndex             int32  `json:"sort_index"`
+}
+
+type FiscalOrderReason struct {
+	FiscalOrderReasonID int32        `json:"fiscal_order_reason_id"`
+	Name                string       `json:"name"`
+	InitialStatusID     int32        `json:"initial_status_id"`
+	CreatedAt           time.Time    `json:"created_at"`
+	UpdatedAt           time.Time    `json:"updated_at"`
+	DeletedAt           sql.NullTime `json:"deleted_at"`
+}
+
+type FiscalOrderStatus struct {
+	FiscalOrderStatusID int32  `json:"fiscal_order_status_id"`
+	Name                string `json:"name"`
+	BackgroundColor     string `json:"background_color"`
+	BorderColor         string `json:"border_color"`
+	TextColor           string `json:"text_color"`
+	SortIndex           int32  `json:"sort_index"`
+	IsClosed            bool   `json:"is_closed"`
+	IsDefault           bool   `json:"is_default"`
+	IsPendingApproval   bool   `json:"is_pending_approval"`
+}
+
+type FiscalOrderStatusTransition struct {
+	ID            int32         `json:"id"`
+	FromStatusID  sql.NullInt32 `json:"from_status_id"`
+	ToStatusID    int32         `json:"to_status_id"`
+	AccessLevelID int32         `json:"access_level_id"`
+}
+
 type Group struct {
 	GroupID   int32         `json:"group_id"`
 	Name      string        `json:"name"`
@@ -174,6 +376,126 @@ type GroupsAccessLevel struct {
 	GroupAccessLevelID int32 `json:"group_access_level_id"`
 	GroupID            int32 `json:"group_id"`
 	AccessLevelID      int32 `json:"access_level_id"`
+}
+
+type LogisticConfig struct {
+	LogisticConfigID            int32         `json:"logistic_config_id"`
+	SalaryDiscountAccessLevelID sql.NullInt32 `json:"salary_discount_access_level_id"`
+}
+
+type LogisticConfigAssignableAccessLevel struct {
+	LogisticConfigID int32 `json:"logistic_config_id"`
+	AccessLevelID    int32 `json:"access_level_id"`
+}
+
+type LogisticOperator struct {
+	LogisticOperatorID int32                `json:"logistic_operator_id"`
+	Name               string               `json:"name"`
+	Type               LogisticOperatorType `json:"type"`
+}
+
+type LogisticOrder struct {
+	LogisticOrderID      int32          `json:"logistic_order_id"`
+	RequesterID          int32          `json:"requester_id"`
+	RequesterName        string         `json:"requester_name"`
+	AssignedToID         sql.NullInt32  `json:"assigned_to_id"`
+	AssignedToName       sql.NullString `json:"assigned_to_name"`
+	DriverName           sql.NullString `json:"driver_name"`
+	CheckerName          sql.NullString `json:"checker_name"`
+	CheckerSignature     sql.NullString `json:"checker_signature"`
+	SalespersonName      sql.NullString `json:"salesperson_name"`
+	ClientCode           string         `json:"client_code"`
+	ClientName           string         `json:"client_name"`
+	ClientAliasName      string         `json:"client_alias_name"`
+	ContactType          sql.NullString `json:"contact_type"`
+	ContactName          sql.NullString `json:"contact_name"`
+	ContactPhone         sql.NullString `json:"contact_phone"`
+	ContactMobile        sql.NullString `json:"contact_mobile"`
+	ContactEmail         sql.NullString `json:"contact_email"`
+	AddressName          sql.NullString `json:"address_name"`
+	AddressType          sql.NullString `json:"address_type"`
+	TypeOfAddress        sql.NullString `json:"type_of_address"`
+	Street               sql.NullString `json:"street"`
+	StreetNo             sql.NullString `json:"street_no"`
+	Block                sql.NullString `json:"block"`
+	City                 sql.NullString `json:"city"`
+	County               sql.NullString `json:"county"`
+	State                sql.NullString `json:"state"`
+	Country              sql.NullString `json:"country"`
+	ZipCode              sql.NullString `json:"zip_code"`
+	BuildingFloorRoom    sql.NullString `json:"building_floor_room"`
+	StatusID             int32          `json:"status_id"`
+	PriorityID           int32          `json:"priority_id"`
+	ReasonID             int32          `json:"reason_id"`
+	ScheduleDate         sql.NullTime   `json:"schedule_date"`
+	Description          string         `json:"description"`
+	HasSalaryDiscount    sql.NullBool   `json:"has_salary_discount"`
+	SalaryDiscountReason sql.NullString `json:"salary_discount_reason"`
+	CapturedAt           sql.NullTime   `json:"captured_at"`
+	Resolution           sql.NullString `json:"resolution"`
+	ClosedAt             sql.NullTime   `json:"closed_at"`
+	CreatedAt            time.Time      `json:"created_at"`
+	UpdatedAt            time.Time      `json:"updated_at"`
+	DeletedAt            sql.NullTime   `json:"deleted_at"`
+}
+
+type LogisticOrderAttachment struct {
+	LogisticOrderAttachmentID int32        `json:"logistic_order_attachment_id"`
+	LogisticOrderID           int32        `json:"logistic_order_id"`
+	FileName                  string       `json:"file_name"`
+	FilePath                  string       `json:"file_path"`
+	FileSize                  int32        `json:"file_size"`
+	CreatedAt                 time.Time    `json:"created_at"`
+	UpdatedAt                 time.Time    `json:"updated_at"`
+	DeletedAt                 sql.NullTime `json:"deleted_at"`
+}
+
+type LogisticOrderItem struct {
+	LogisticOrderItemID int32        `json:"logistic_order_item_id"`
+	LogisticOrderID     int32        `json:"logistic_order_id"`
+	Name                string       `json:"name"`
+	ItemCode            string       `json:"item_code"`
+	Quantity            int32        `json:"quantity"`
+	CreatedAt           time.Time    `json:"created_at"`
+	UpdatedAt           time.Time    `json:"updated_at"`
+	DeletedAt           sql.NullTime `json:"deleted_at"`
+}
+
+type LogisticOrderPriority struct {
+	LogisticOrderPriorityID int32  `json:"logistic_order_priority_id"`
+	Name                    string `json:"name"`
+	BackgroundColor         string `json:"background_color"`
+	BorderColor             string `json:"border_color"`
+	TextColor               string `json:"text_color"`
+	SortIndex               int32  `json:"sort_index"`
+}
+
+type LogisticOrderReason struct {
+	LogisticOrderReasonID int32        `json:"logistic_order_reason_id"`
+	Name                  string       `json:"name"`
+	InitialStatusID       int32        `json:"initial_status_id"`
+	CreatedAt             time.Time    `json:"created_at"`
+	UpdatedAt             time.Time    `json:"updated_at"`
+	DeletedAt             sql.NullTime `json:"deleted_at"`
+}
+
+type LogisticOrderStatus struct {
+	LogisticOrderStatusID int32  `json:"logistic_order_status_id"`
+	Name                  string `json:"name"`
+	BackgroundColor       string `json:"background_color"`
+	BorderColor           string `json:"border_color"`
+	TextColor             string `json:"text_color"`
+	SortIndex             int32  `json:"sort_index"`
+	IsClosed              bool   `json:"is_closed"`
+	IsPendingApproval     bool   `json:"is_pending_approval"`
+	IsRhStep              bool   `json:"is_rh_step"`
+}
+
+type LogisticOrderStatusTransition struct {
+	ID            int32         `json:"id"`
+	FromStatusID  sql.NullInt32 `json:"from_status_id"`
+	ToStatusID    int32         `json:"to_status_id"`
+	AccessLevelID int32         `json:"access_level_id"`
 }
 
 type MaintenanceOrder struct {
@@ -390,6 +712,256 @@ type Menu struct {
 type Module struct {
 	ModuleID int32  `json:"module_id"`
 	Name     string `json:"name"`
+}
+
+type PurchasingOrder struct {
+	PurchasingOrderID int32          `json:"purchasing_order_id"`
+	RequesterID       int32          `json:"requester_id"`
+	RequesterName     string         `json:"requester_name"`
+	AssignedToID      sql.NullInt32  `json:"assigned_to_id"`
+	AssignedToName    sql.NullString `json:"assigned_to_name"`
+	SalespersonName   sql.NullString `json:"salesperson_name"`
+	ClientCode        string         `json:"client_code"`
+	ClientName        string         `json:"client_name"`
+	ClientAliasName   string         `json:"client_alias_name"`
+	StatusID          int32          `json:"status_id"`
+	PriorityID        int32          `json:"priority_id"`
+	ReasonID          int32          `json:"reason_id"`
+	Description       string         `json:"description"`
+	CapturedAt        sql.NullTime   `json:"captured_at"`
+	Resolution        sql.NullString `json:"resolution"`
+	ClosedAt          sql.NullTime   `json:"closed_at"`
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	DeletedAt         sql.NullTime   `json:"deleted_at"`
+}
+
+type PurchasingOrderAttachment struct {
+	PurchasingOrderAttachmentID int32        `json:"purchasing_order_attachment_id"`
+	PurchasingOrderID           int32        `json:"purchasing_order_id"`
+	FileName                    string       `json:"file_name"`
+	FilePath                    string       `json:"file_path"`
+	FileSize                    int32        `json:"file_size"`
+	CreatedAt                   time.Time    `json:"created_at"`
+	UpdatedAt                   time.Time    `json:"updated_at"`
+	DeletedAt                   sql.NullTime `json:"deleted_at"`
+}
+
+type PurchasingOrderPriority struct {
+	PurchasingOrderPriorityID int32  `json:"purchasing_order_priority_id"`
+	Name                      string `json:"name"`
+	BackgroundColor           string `json:"background_color"`
+	BorderColor               string `json:"border_color"`
+	TextColor                 string `json:"text_color"`
+	SortIndex                 int32  `json:"sort_index"`
+}
+
+type PurchasingOrderReason struct {
+	PurchasingOrderReasonID int32        `json:"purchasing_order_reason_id"`
+	Name                    string       `json:"name"`
+	InitialStatusID         int32        `json:"initial_status_id"`
+	CreatedAt               time.Time    `json:"created_at"`
+	UpdatedAt               time.Time    `json:"updated_at"`
+	DeletedAt               sql.NullTime `json:"deleted_at"`
+}
+
+type PurchasingOrderStatus struct {
+	PurchasingOrderStatusID int32  `json:"purchasing_order_status_id"`
+	Name                    string `json:"name"`
+	BackgroundColor         string `json:"background_color"`
+	BorderColor             string `json:"border_color"`
+	TextColor               string `json:"text_color"`
+	SortIndex               int32  `json:"sort_index"`
+	IsClosed                bool   `json:"is_closed"`
+	IsDefault               bool   `json:"is_default"`
+	IsPendingApproval       bool   `json:"is_pending_approval"`
+}
+
+type PurchasingOrderStatusTransition struct {
+	ID            int32         `json:"id"`
+	FromStatusID  sql.NullInt32 `json:"from_status_id"`
+	ToStatusID    int32         `json:"to_status_id"`
+	AccessLevelID int32         `json:"access_level_id"`
+}
+
+type ReturnConfig struct {
+	ReturnConfigID int32 `json:"return_config_id"`
+}
+
+type ReturnConfigAssignableAccessLevel struct {
+	ReturnConfigID int32 `json:"return_config_id"`
+	AccessLevelID  int32 `json:"access_level_id"`
+}
+
+type ReturnOrder struct {
+	ReturnOrderID        int32          `json:"return_order_id"`
+	RequesterID          int32          `json:"requester_id"`
+	RequesterName        string         `json:"requester_name"`
+	AssignedToID         sql.NullInt32  `json:"assigned_to_id"`
+	AssignedToName       sql.NullString `json:"assigned_to_name"`
+	SalespersonName      sql.NullString `json:"salesperson_name"`
+	ClientCode           string         `json:"client_code"`
+	ClientName           string         `json:"client_name"`
+	ClientAliasName      string         `json:"client_alias_name"`
+	ContactType          sql.NullString `json:"contact_type"`
+	ContactName          sql.NullString `json:"contact_name"`
+	ContactPhone         sql.NullString `json:"contact_phone"`
+	ContactMobile        sql.NullString `json:"contact_mobile"`
+	ContactEmail         sql.NullString `json:"contact_email"`
+	AddressName          sql.NullString `json:"address_name"`
+	AddressType          sql.NullString `json:"address_type"`
+	TypeOfAddress        sql.NullString `json:"type_of_address"`
+	Street               sql.NullString `json:"street"`
+	StreetNo             sql.NullString `json:"street_no"`
+	Block                sql.NullString `json:"block"`
+	City                 sql.NullString `json:"city"`
+	County               sql.NullString `json:"county"`
+	State                sql.NullString `json:"state"`
+	Country              sql.NullString `json:"country"`
+	ZipCode              sql.NullString `json:"zip_code"`
+	BuildingFloorRoom    sql.NullString `json:"building_floor_room"`
+	StatusID             int32          `json:"status_id"`
+	PriorityID           int32          `json:"priority_id"`
+	ReasonID             int32          `json:"reason_id"`
+	CreditFormID         sql.NullInt32  `json:"credit_form_id"`
+	PixKeyType           sql.NullString `json:"pix_key_type"`
+	PixKeyOwner          sql.NullString `json:"pix_key_owner"`
+	PixKey               sql.NullString `json:"pix_key"`
+	TransferBank         sql.NullString `json:"transfer_bank"`
+	TransferAgency       sql.NullString `json:"transfer_agency"`
+	TransferAccount      sql.NullString `json:"transfer_account"`
+	Nfe                  sql.NullString `json:"nfe"`
+	ClientSentReturnNote bool           `json:"client_sent_return_note"`
+	InternalReturn       bool           `json:"internal_return"`
+	PartialReturn        bool           `json:"partial_return"`
+	ScheduleDate         sql.NullTime   `json:"schedule_date"`
+	Description          string         `json:"description"`
+	CapturedAt           sql.NullTime   `json:"captured_at"`
+	Resolution           sql.NullString `json:"resolution"`
+	ClosedAt             sql.NullTime   `json:"closed_at"`
+	CreatedAt            time.Time      `json:"created_at"`
+	UpdatedAt            time.Time      `json:"updated_at"`
+	DeletedAt            sql.NullTime   `json:"deleted_at"`
+}
+
+type ReturnOrderAttachment struct {
+	ReturnOrderAttachmentID int32        `json:"return_order_attachment_id"`
+	ReturnOrderID           int32        `json:"return_order_id"`
+	FileName                string       `json:"file_name"`
+	FilePath                string       `json:"file_path"`
+	FileSize                int32        `json:"file_size"`
+	CreatedAt               time.Time    `json:"created_at"`
+	UpdatedAt               time.Time    `json:"updated_at"`
+	DeletedAt               sql.NullTime `json:"deleted_at"`
+}
+
+type ReturnOrderCreditForm struct {
+	ReturnOrderCreditFormID int32        `json:"return_order_credit_form_id"`
+	Name                    string       `json:"name"`
+	CreatedAt               time.Time    `json:"created_at"`
+	UpdatedAt               time.Time    `json:"updated_at"`
+	DeletedAt               sql.NullTime `json:"deleted_at"`
+}
+
+type ReturnOrderItem struct {
+	ReturnOrderItemID int32        `json:"return_order_item_id"`
+	ReturnOrderID     int32        `json:"return_order_id"`
+	Name              string       `json:"name"`
+	ItemCode          string       `json:"item_code"`
+	Quantity          int32        `json:"quantity"`
+	CreatedAt         time.Time    `json:"created_at"`
+	UpdatedAt         time.Time    `json:"updated_at"`
+	DeletedAt         sql.NullTime `json:"deleted_at"`
+}
+
+type ReturnOrderPriority struct {
+	ReturnOrderPriorityID int32  `json:"return_order_priority_id"`
+	Name                  string `json:"name"`
+	BackgroundColor       string `json:"background_color"`
+	BorderColor           string `json:"border_color"`
+	TextColor             string `json:"text_color"`
+	SortIndex             int32  `json:"sort_index"`
+}
+
+type ReturnOrderReason struct {
+	ReturnOrderReasonID int32          `json:"return_order_reason_id"`
+	Name                string         `json:"name"`
+	Description         sql.NullString `json:"description"`
+	InitialStatusID     int32          `json:"initial_status_id"`
+	CreatedAt           time.Time      `json:"created_at"`
+	UpdatedAt           time.Time      `json:"updated_at"`
+	DeletedAt           sql.NullTime   `json:"deleted_at"`
+}
+
+type ReturnOrderStatus struct {
+	ReturnOrderStatusID int32  `json:"return_order_status_id"`
+	Name                string `json:"name"`
+	BackgroundColor     string `json:"background_color"`
+	BorderColor         string `json:"border_color"`
+	TextColor           string `json:"text_color"`
+	SortIndex           int32  `json:"sort_index"`
+	IsClosed            bool   `json:"is_closed"`
+	IsDefault           bool   `json:"is_default"`
+	IsPendingApproval   bool   `json:"is_pending_approval"`
+}
+
+type ReturnOrderStatusTransition struct {
+	ID            int32         `json:"id"`
+	FromStatusID  sql.NullInt32 `json:"from_status_id"`
+	ToStatusID    int32         `json:"to_status_id"`
+	AccessLevelID int32         `json:"access_level_id"`
+}
+
+type SapClient struct {
+	SapClientCode string         `json:"sap_client_code"`
+	Name          string         `json:"name"`
+	AliasName     sql.NullString `json:"alias_name"`
+	SapUpdatedAt  sql.NullTime   `json:"sap_updated_at"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+	DeletedAt     sql.NullTime   `json:"deleted_at"`
+}
+
+type SapClientAddress struct {
+	SapClientAddressID int32          `json:"sap_client_address_id"`
+	SapClientCode      string         `json:"sap_client_code"`
+	AddressName        string         `json:"address_name"`
+	AddressType        sql.NullString `json:"address_type"`
+	TypeOfAddress      sql.NullString `json:"type_of_address"`
+	Street             sql.NullString `json:"street"`
+	StreetNo           sql.NullString `json:"street_no"`
+	Block              sql.NullString `json:"block"`
+	City               sql.NullString `json:"city"`
+	County             sql.NullString `json:"county"`
+	State              sql.NullString `json:"state"`
+	Country            sql.NullString `json:"country"`
+	ZipCode            sql.NullString `json:"zip_code"`
+	BuildingFloorRoom  sql.NullString `json:"building_floor_room"`
+	CreatedAt          time.Time      `json:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at"`
+	DeletedAt          sql.NullTime   `json:"deleted_at"`
+}
+
+type SapClientContact struct {
+	SapClientContactID int32          `json:"sap_client_contact_id"`
+	SapClientCode      string         `json:"sap_client_code"`
+	Name               string         `json:"name"`
+	ContactName        sql.NullString `json:"contact_name"`
+	Phone              sql.NullString `json:"phone"`
+	Mobile             sql.NullString `json:"mobile"`
+	Email              sql.NullString `json:"email"`
+	CreatedAt          time.Time      `json:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at"`
+	DeletedAt          sql.NullTime   `json:"deleted_at"`
+}
+
+type SapItem struct {
+	SapItemCode  string       `json:"sap_item_code"`
+	Name         string       `json:"name"`
+	SapUpdatedAt sql.NullTime `json:"sap_updated_at"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
+	DeletedAt    sql.NullTime `json:"deleted_at"`
 }
 
 type User struct {

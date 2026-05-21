@@ -525,6 +525,78 @@ func (h *Handler) deleteTimeEntryType(w http.ResponseWriter, r *http.Request) {
 	response.Msg(w, "Tipo de apontamento excluído com sucesso")
 }
 
+// ── Lookup GET-by-ID handlers ─────────────────────────────────────────────────
+
+func (h *Handler) getStatusByID(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	data, err := h.lookups.GetStatusByID(r.Context(), id)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response.Ok(w, data)
+}
+
+func (h *Handler) getPriorityByID(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	data, err := h.lookups.GetPriorityByID(r.Context(), id)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response.Ok(w, data)
+}
+
+func (h *Handler) getReasonByID(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	data, err := h.lookups.GetReasonByID(r.Context(), id)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response.Ok(w, data)
+}
+
+func (h *Handler) getNoteTemplateByID(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	data, err := h.lookups.GetNoteTemplateByID(r.Context(), id)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response.Ok(w, data)
+}
+
+func (h *Handler) getTimeEntryTypeByID(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	data, err := h.lookups.GetTimeEntryTypeByID(r.Context(), id)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response.Ok(w, data)
+}
+
 // ── Attachment handlers ───────────────────────────────────────────────────────
 
 func (h *Handler) uploadAttachments(w http.ResponseWriter, r *http.Request) {
@@ -612,6 +684,50 @@ func (h *Handler) deleteAttachment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response.Msg(w, "Arquivo excluído com sucesso")
+}
+
+func (h *Handler) downloadAttachment(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	att, err := h.attachment.GetByID(r.Context(), id)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	fullPath := filepath.Join(uploadDir, att.FilePath)
+	f, err := os.Open(fullPath)
+	if err != nil {
+		response.Err(w, http.StatusNotFound, "arquivo não encontrado no servidor")
+		return
+	}
+	defer f.Close()
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+att.FileName+"\"")
+	w.Header().Set("Content-Type", "application/octet-stream")
+	io.Copy(w, f)
+}
+
+func (h *Handler) deleteAttachmentByID(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		response.Err(w, http.StatusBadRequest, "id inválido")
+		return
+	}
+	if err := h.attachment.Delete(r.Context(), id); err != nil {
+		response.Err(w, http.StatusNotFound, err.Error())
+		return
+	}
+	response.Msg(w, "Arquivo excluído com sucesso")
+}
+
+func (h *Handler) getAuditTrail(w http.ResponseWriter, _ *http.Request) {
+	response.Ok(w, []any{})
+}
+
+func (h *Handler) logDownload(w http.ResponseWriter, _ *http.Request) {
+	response.Msg(w, "Log registrado")
 }
 
 // ── Checklist handlers ────────────────────────────────────────────────────────

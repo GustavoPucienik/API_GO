@@ -13,6 +13,8 @@ import (
 
 	"systemapi/internal/admin"
 	"systemapi/internal/db"
+	"systemapi/internal/fiscal"
+	"systemapi/internal/logistic"
 	"systemapi/internal/maintenance"
 	"systemapi/pkg/config"
 )
@@ -51,6 +53,12 @@ func main() {
 
 	maintenanceHandler := maintenance.NewHandler(sqlDB, queries)
 	maintenanceHandler.RegisterRoutes(r, sqlDB)
+
+	fiscalHandler := fiscal.NewHandler(sqlDB, queries)
+	fiscalHandler.RegisterRoutes(r, sqlDB)
+
+	logisticHandler := logistic.NewHandler(sqlDB, queries)
+	logisticHandler.RegisterRoutes(r, sqlDB)
 
 	addr := ":" + cfg.Port
 	log.Printf("server listening on %s", addr)

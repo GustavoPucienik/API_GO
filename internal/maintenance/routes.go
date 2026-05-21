@@ -41,11 +41,17 @@ func (h *Handler) RegisterRoutes(r chi.Router, sqlDB *sql.DB) {
 		r.With(perm("Manutenção", mw.PermUpdate)).Patch("/{id}/signature", h.saveSignature)
 		r.With(perm("Manutenção", mw.PermUpdate)).Patch("/{id}/status", h.changeStatus)
 		r.With(perm("Manutenção", mw.PermDelete)).Delete("/{id}", h.deleteOrder)
+		r.With(perm("Manutenção", mw.PermRead)).Get("/{id}/audit-trail", h.getAuditTrail)
+		r.With(perm("Manutenção", mw.PermRead)).Post("/{id}/download-log", h.logDownload)
 
-		// Attachments
+		// Attachments (nested under order)
 		r.With(perm("Manutenção", mw.PermCreate)).Post("/{id}/attachments", h.uploadAttachments)
 		r.With(perm("Manutenção", mw.PermRead)).Get("/{id}/attachments", h.listAttachments)
 		r.With(perm("Manutenção", mw.PermDelete)).Delete("/{id}/attachments/{attachmentId}", h.deleteAttachment)
+
+		// Attachments (direct by attachment ID)
+		r.With(perm("Manutenção", mw.PermRead)).Get("/attachments/{id}/download", h.downloadAttachment)
+		r.With(perm("Manutenção", mw.PermDelete)).Delete("/attachments/{id}", h.deleteAttachmentByID)
 
 		// Checklists
 		r.With(perm("Manutenção", mw.PermRead)).Get("/{id}/checklists", h.listChecklists)
@@ -64,38 +70,43 @@ func (h *Handler) RegisterRoutes(r chi.Router, sqlDB *sql.DB) {
 		r.Route("/status", func(r chi.Router) {
 			r.Get("/", h.listStatuses)
 			r.With(perm("Manutenção", mw.PermCreate)).Post("/", h.createStatus)
+			r.Get("/{id}", h.getStatusByID)
 			r.With(perm("Manutenção", mw.PermUpdate)).Put("/{id}", h.updateStatus)
 			r.With(perm("Manutenção", mw.PermDelete)).Delete("/{id}", h.deleteStatus)
 		})
 
 		// Priority
-		r.Route("/priority", func(r chi.Router) {
+		r.Route("/priorities", func(r chi.Router) {
 			r.Get("/", h.listPriorities)
 			r.With(perm("Manutenção", mw.PermCreate)).Post("/", h.createPriority)
+			r.Get("/{id}", h.getPriorityByID)
 			r.With(perm("Manutenção", mw.PermUpdate)).Put("/{id}", h.updatePriority)
 			r.With(perm("Manutenção", mw.PermDelete)).Delete("/{id}", h.deletePriority)
 		})
 
 		// Reason
-		r.Route("/reason", func(r chi.Router) {
+		r.Route("/reasons", func(r chi.Router) {
 			r.Get("/", h.listReasons)
 			r.With(perm("Manutenção", mw.PermCreate)).Post("/", h.createReason)
+			r.Get("/{id}", h.getReasonByID)
 			r.With(perm("Manutenção", mw.PermUpdate)).Put("/{id}", h.updateReason)
 			r.With(perm("Manutenção", mw.PermDelete)).Delete("/{id}", h.deleteReason)
 		})
 
 		// Note template
-		r.Route("/note-template", func(r chi.Router) {
+		r.Route("/note-templates", func(r chi.Router) {
 			r.Get("/", h.listNoteTemplates)
 			r.With(perm("Manutenção", mw.PermCreate)).Post("/", h.createNoteTemplate)
+			r.Get("/{id}", h.getNoteTemplateByID)
 			r.With(perm("Manutenção", mw.PermUpdate)).Put("/{id}", h.updateNoteTemplate)
 			r.With(perm("Manutenção", mw.PermDelete)).Delete("/{id}", h.deleteNoteTemplate)
 		})
 
 		// Time entry type
-		r.Route("/time-entry-type", func(r chi.Router) {
+		r.Route("/time-entry-types", func(r chi.Router) {
 			r.Get("/", h.listTimeEntryTypes)
 			r.With(perm("Manutenção", mw.PermCreate)).Post("/", h.createTimeEntryType)
+			r.Get("/{id}", h.getTimeEntryTypeByID)
 			r.With(perm("Manutenção", mw.PermUpdate)).Put("/{id}", h.updateTimeEntryType)
 			r.With(perm("Manutenção", mw.PermDelete)).Delete("/{id}", h.deleteTimeEntryType)
 		})

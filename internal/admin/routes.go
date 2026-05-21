@@ -88,6 +88,7 @@ func (h *Handler) RegisterRoutes(r chi.Router, sqlDB *sql.DB) {
 		r.Use(mw.Auth)
 		r.With(perm("menu", mw.PermRead)).Get("/", h.findAllMenus)
 		r.With(perm("menu", mw.PermCreate)).Post("/", h.createMenu)
+		r.With(perm("menu", mw.PermRead)).Get("/{id}", h.findMenuByID)
 		r.With(perm("menu", mw.PermUpdate)).Put("/{id}", h.updateMenu)
 		r.With(perm("menu", mw.PermDelete)).Delete("/{id}", h.deleteMenu)
 	})
